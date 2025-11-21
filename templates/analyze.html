@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Format</title>
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden">
+        <div class="spinner"></div>
+        <h2 style="color: white;">Downloading...</h2>
+        <p style="color: #ccc;">Please wait. Audio files will be converted to MP3.</p>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="/">&larr; Back</a>
+            <span>Results for: {{ title }}</span>
+        </div>
+
+        <!-- Filters (same as before) -->
+        <div class="filters">
+            <label>Language:
+                <select id="langFilter" onchange="applyFilters()">
+                    <option value="all">All</option>
+                    {% for lang in languages %}
+                    <option value="{{ lang }}">{{ lang }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>Type:
+                <select id="typeFilter" onchange="applyFilters()">
+                    <option value="all">All</option>
+                    <option value="Video+Audio">Video + Audio</option>
+                    <option value="Video Only">Video Only</option>
+                    <option value="Audio Only">Audio Only</option>
+                </select>
+            </label>
+            
+            <label>Min Resolution:
+                <select id="resFilter" onchange="applyFilters()">
+                    <option value="0">Any</option>
+                    <option value="240">240p</option>
+                    <option value="480">480p</option>
+                    <option value="720">720p</option>
+                    <option value="1080">1080p</option>
+                </select>
+            </label>
+        </div>
+
+        <table id="formatTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ext</th>
+                    <th>Res</th>
+                    <th>Size</th>
+                    <th>Lang</th>
+                    <th>Type</th>
+                    <th>Info</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fmt in formats %}
+                <tr class="fmt-row" 
+                    data-lang="{{ fmt.language }}" 
+                    data-type="{{ fmt.type_label }}" 
+                    data-height="{{ fmt.raw_height }}">
+                    
+                    <td>{{ fmt.id }}</td>
+                    <td>{{ fmt.ext }}</td>
+                    <td>{{ fmt.resolution }}</td>
+                    <td>{{ fmt.filesize }}</td>
+                    <td>{{ fmt.language }}</td>
+                    <td>
+                        <span style="
+                            padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;
+                            background: {% if fmt.type_label == "Video+Audio" %}var(--success); color: #000;
+                                        {% else if fmt.type_label == "Video Only" %}var(--accent); color: #000;
+                                        {% else %}#ccc; color: #000;{% endif %}
+                        ">
+                            {{ fmt.type_label }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.8em; color: var(--text-secondary);">{{ fmt.codecs }}</td>
+                    <td>
+                        <form action="/download" method="post" onsubmit="showLoader()">
+                            <input type="hidden" name="url" value="{{ url }}">
+                            <input type="hidden" name="format_id" value="{{ fmt.id }}">
+                            <!-- CRITICAL ADDITION: Pass the type label -->
+                            <input type="hidden" name="file_type" value="{{ fmt.type_label }}">
+                            <button type="submit" class="btn" style="font-size: 0.8rem; padding: 5px 10px;">Download</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function showLoader() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function applyFilters() {
+            const lang = document.getElementById('langFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const minRes = parseInt(document.getElementById('resFilter').value);
+            
+            const rows = document.querySelectorAll('.fmt-row');
+            
+            rows.forEach(row => {
+                const rowLang = row.getAttribute('data-lang');
+                const rowType = row.getAttribute('data-type');
+                const rowHeight = parseInt(row.getAttribute('data-height'));
+                
+                let show = true;
+                if (lang !== 'all' && rowLang !== lang) show = false;
+                if (type !== 'all' && rowType !== type) show = false;
+                if (minRes > 0 && rowHeight < minRes) show = false;
+
+                row.style.display = show ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

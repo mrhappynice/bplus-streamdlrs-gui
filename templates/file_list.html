@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downloaded Files</title>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/assets/style.css">
+    <!-- Video.js CSS (The "CDN Player" look) -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">&larr; Back to Analyzer</a>
+            <span>Library</span>
+        </div>
+        
+        <h1>Downloaded Media</h1>
+        
+        <div class="video-grid">
+            {% for file in files %}
+            <div class="video-card">
+                <div class="video-wrapper">
+                    {% match file.media_type %}
+                        {% when MediaType::Video %}
+                            <!-- 
+                                class="video-js" activates the library 
+                                vjs-big-play-centered centers the play button
+                                vjs-fluid makes it responsive
+                            -->
+                            <video 
+                                id="vid-{{ loop.index }}" 
+                                class="video-js vjs-default-skin vjs-big-play-centered vjs-fluid" 
+                                controls 
+                                preload="metadata" 
+                                data-setup='{}'>
+                                <source src="/content/{{ file.name }}" type="{{ file.mime_type }}">
+                                <!-- Fallback -->
+                                <p class="vjs-no-js">
+                                    To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video
+                                </p>
+                            </video>
+                        
+                        {% when MediaType::Audio %}
+                            <div style="display: flex; flex-direction: column; align-items: center; color: #e0e0e0; padding: 20px; width: 100%;">
+                                <svg width="50" height="50" viewBox="0 0 24 24" fill="currentColor" style="margin-bottom: 10px;">
+                                    <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+                                </svg>
+                                <!-- Audio can use standard player or also be wrapped in video.js if desired, usually standard is fine for audio -->
+                                <audio controls style="width: 90%;">
+                                    <source src="/content/{{ file.name }}" type="{{ file.mime_type }}">
+                                </audio>
+                            </div>
+
+                        {% else %}
+                            <div style="display: flex; flex-direction: column; align-items: center; color: #aaa; padding: 30px;">
+                                <span style="font-size: 2rem;">?</span>
+                                <span>{{ file.mime_type }}</span>
+                                <small style="margin-top:10px;">Browser cannot play this file.</small>
+                            </div>
+                    {% endmatch %}
+                </div>
+                
+                <div class="card-info">
+                    <div class="file-name" title="{{ file.name }}">{{ file.name }}</div>
+                    <div class="file-meta">{{ file.size_mb }}</div>
+                    
+                    <div class="card-actions">
+                        <a href="/content/{{ file.name }}" class="btn-dl" download>Download</a>
+                        <a href="/content/{{ file.name }}" class="btn-dl" target="_blank">Open</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">
+                No files found. Try downloading a new video to see the updated player!
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Video.js Library -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+</body>
+</html>

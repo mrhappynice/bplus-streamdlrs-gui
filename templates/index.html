@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bplus🤷🏻‍♂️ - streamdlrs-gui</title>
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/files">View Downloads</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <h1 style="font-size: 3rem; margin-bottom: 10px;">bplus🤷🏻‍♂️ - streamdlrs-gui</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Enter a URL to inspect formats and download.</p>
+
+            {% if let Some(err) = error %}
+                <div style="background: var(--danger); color: white; padding: 15px; border-radius: 6px; margin-bottom: 20px;">{{ err }}</div>
+            {% endif %}
+
+            <form action="/analyze" method="post" style="max-width: 600px; margin: 0 auto; display: flex; gap: 10px;">
+                <input type="text" name="url" placeholder="Paste YouTube URL here..." required>
+                <button type="submit">Analyze</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
